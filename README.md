@@ -15,7 +15,7 @@
 
   * **Core Objective:** A comprehensive behavioral data pipeline and predictive analytics engine built for RavenStack. This project shifts the analytics strategy from standard descriptive reporting to predictive churn modeling.
   * **Technical Approach:** Built natively within the Google Cloud ecosystem, leveraging advanced Standard SQL (CTEs, Window Functions, Self-Joins, and Time-Series) in BigQuery to extract user lifecycle signals from raw telemetry logs.
-  * **Business Impact:** Delivers targeted, cross-functional insights—guiding Product Management in feature optimization, enabling Customer Success to trigger proactive retention interventions, and helping RevOps optimize Monthly Recurring Revenue (MRR).
+  * **Business Impact:** Identified $2.07M in MRR at risk due to support bottlenecks and built a "Silent Churn" detector to flag engagement drops 30 days before cancellation.
   * **Project Scope:** Executed during the platform's pre-launch pilot phase to establish rigorous baseline retention metrics and behavioral patterns prior to scaling.
 
 -----
@@ -29,8 +29,171 @@ RavenStack is a B2B SaaS platform delivering AI-driven productivity tools. The p
   * **Visualization:** Looker Studio / Tableau
   * **Data Schema:** Star schema consisting of `accounts`, `subscriptions`, `feature_usage`, `support_tickets`, and `churn_events`.
 
------
+# ⭐ Featured SQL Analysis (Core Business Questions)
 
+This section demonstrates how SQL is used to answer critical product and business questions, uncover insights, and drive strategic decisions.
+
+---
+
+## 🚨 1. Does Poor Support Actually Cause Churn?
+
+### Business Question
+Are customers churning because of slow support response times?
+
+### SQL Query
+```sql
+WITH BadSupportTickets AS (
+    SELECT DISTINCT account_id
+    FROM support_tickets
+    WHERE resolution_time_hours > 48
+)
+
+SELECT 
+    COUNT(*) AS churned_due_to_bad_support
+FROM churn_events c
+JOIN BadSupportTickets b 
+    ON c.account_id = b.account_id
+WHERE c.reason_code = 'support';
+```
+
+### Insight
+👉 **80.7%** of support-related churn involved tickets unresolved for more than 48 hours.
+
+### Business Impact
+- Clear causal signal between SLA failure and churn  
+- High-priority intervention point for Customer Success  
+
+---
+
+## 💰 2. Revenue at Risk from Support Escalations
+
+### Business Question
+How much revenue is tied to customers experiencing escalations?
+
+### SQL Query
+```sql
+WITH EscalatedAccounts AS (
+    SELECT DISTINCT account_id
+    FROM support_tickets
+    WHERE escalation_flag = TRUE
+)
+
+SELECT 
+    SUM(mrr_amount) AS mrr_at_risk
+FROM subscriptions s
+JOIN EscalatedAccounts e 
+    ON s.account_id = e.account_id;
+```
+
+### Insight
+👉 **$2.07M (~18% of total MRR)** is at risk.
+
+### Business Impact
+- Identifies high-value accounts needing attention  
+- Justifies investment in Tier-2 support  
+
+---
+
+## ⚡ 3. Time-to-Value (Activation Speed)
+
+### Business Question
+How quickly do users reach their first meaningful product interaction?
+
+### SQL Query
+```sql
+WITH FirstAction AS (
+    SELECT 
+        account_id,
+        usage_date,
+        ROW_NUMBER() OVER (
+            PARTITION BY account_id 
+            ORDER BY usage_date
+        ) AS rn
+    FROM feature_usage
+)
+
+SELECT 
+    account_id,
+    usage_date AS first_value_date
+FROM FirstAction
+WHERE rn = 1;
+```
+
+### Insight
+👉 Faster activation strongly correlates with retention.
+
+### Business Impact
+- Optimize onboarding flows  
+- Reduce early churn risk  
+
+---
+
+## 🔍 4. Feature Adoption → Retention Drivers
+
+### Business Question
+Which features are most associated with retained users?
+
+### SQL Query
+```sql
+SELECT 
+    f.feature_name,
+    SUM(f.usage_count) AS total_usage
+FROM feature_usage f
+JOIN subscriptions s 
+    ON f.subscription_id = s.subscription_id
+JOIN accounts a 
+    ON s.account_id = a.account_id
+WHERE a.churn_flag = FALSE
+GROUP BY f.feature_name
+ORDER BY total_usage DESC;
+```
+
+### Insight
+👉 High-usage features (e.g., `feature_32`) correlate with retention.
+
+### Business Impact
+- Prioritize onboarding exposure  
+- Inform product roadmap  
+
+---
+
+## ⚠️ 5. Predicting Churn via Behavioral Signals
+
+### Business Question
+Can declining engagement predict churn?
+
+### SQL Logic
+```sql
+CASE 
+    WHEN avg_last_7_days < (0.5 * avg_last_28_days)
+    THEN 'High Churn Risk'
+    ELSE 'Healthy'
+END
+```
+
+### Insight
+👉 Short-term engagement drop is an early churn signal.
+
+### Business Impact
+- Enables proactive retention campaigns  
+- Forms basis of churn prediction system  
+
+---
+
+# 🏢 Business Context & Tech Stack
+
+### Company Context
+**RavenStack** is a B2B SaaS platform delivering AI-driven productivity tools.
+
+### Objective
+Audit user behavior and design a predictive churn prevention system.
+
+### Tech Stack
+- **Warehouse:** Google BigQuery  
+- **Language:** Standard SQL  
+- **Visualization:** Looker Studio / Tableau  
+- **Schema:** Star schema  
+--- 
 ## 📊 Foundational EDA & Diagnostics (Phases 1-4)
 
 Before developing predictive models, a rigorous exploratory data analysis (EDA) was conducted to diagnose baseline business health across Revenue, Product, Support, and Churn.
