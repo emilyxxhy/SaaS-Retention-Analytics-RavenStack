@@ -1,141 +1,290 @@
-# RavenStack: End-to-End SaaS Retention & Predictive Churn Analytics
+\# RavenStack: Synthetic SaaS Dataset (Multi-Table)
 
-![SQL](https://img.shields.io/badge/SQL-Advanced-blue) ![BigQuery](https://img.shields.io/badge/Google_BigQuery-Data_Warehouse-blue) ![Analytics](https://img.shields.io/badge/Analytics-Predictive_Modeling-green) ![Domain](https://img.shields.io/badge/Domain-B2B_SaaS-orange) ![Status](https://img.shields.io/badge/Status-Production_Ready-success)
 
-# 📊 RavenStack: Synthetic SaaS Dataset (Multi-Table)
 
-**Author:** River @ Rivalytics  
-**Credit Requirement:** You are encouraged to use or remix this dataset for educational, research, or portfolio purposes. However, you **must** credit the original author.  
-**Blog:** [Building a Dataset Generator App Journey](https://rivalytics.medium.com)  
-**License:** MIT-like (Fully synthetic, zero Personally Identifiable Information / PII)  
-**Refresh Interval:** Monthly  
-**Complexity:** Capstone-Level (Features multi-table architecture, event-driven logs, and time-sensitive relational data)  
-**Data Format:** CSV  
+\*\*Author:\*\* River @ Rivalytics  
 
-**Row Volume & Scale:**
-* `accounts` – 500 records
-* `subscriptions` – 5,000 records
-* `feature_usage` – 25,000 records
-* `support_tickets` – 2,000 records
-* `churn_events` – 600 records
-This is the definitive, consolidated `README.md`. I have meticulously merged your dataset information with the high-level business strategy. I’ve removed all the "cite\_start" artifacts, refined the professional tone, and structured the insights so a Product Manager or Recruiter can immediately see the **Problem**, **Data Evidence**, and **Solution**.
+\*\*Credit Requirement:\*\* You may use or remix this dataset for educational or portfolio purposes, but please credit the original author.  
 
------
+\*\*Blog:\*\* \[Building a Dataset Generator App Journey](https://rivalytics.medium.com)  
 
-# RavenStack: End-to-End SaaS Retention & Predictive Churn Analytics
+\*\*License:\*\* MIT-like (fully synthetic, no PII)  
 
-    
+\*\*Refresh Interval:\*\* Monthly  
 
-## 📌 Executive Summary
+\*\*Complexity:\*\* Capstone-level (multi-table, event-driven, time-sensitive)  
 
-  * **Core Objective:** A comprehensive behavioral data pipeline and predictive analytics engine built for RavenStack. This project shifts the analytics strategy from standard descriptive reporting to predictive churn modeling.
-  * **Technical Approach:** Built natively within the Google Cloud ecosystem, leveraging advanced Standard SQL (CTEs, Window Functions, Self-Joins, and Time-Series) in BigQuery to extract user lifecycle signals from raw telemetry logs.
-  * **Business Impact:** Delivers targeted, cross-functional insights—guiding Product Management in feature optimization, enabling Customer Success to trigger proactive retention interventions, and helping RevOps optimize Monthly Recurring Revenue (MRR).
-  * **Project Scope:** Executed during the platform's pre-launch pilot phase to establish rigorous baseline retention metrics and behavioral patterns prior to scaling.
+\*\*Data Format:\*\* CSV  
 
------
+\*\*Row Volume:\*\*
 
-## 🏢 Business Context & Tech Stack
+\- accounts – 500
 
-RavenStack is a B2B SaaS platform delivering AI-driven productivity tools. The primary objective of this project is to audit pre-launch telemetry data to establish baseline retention metrics and architect an automated, predictive churn-prevention framework.
+\- subscriptions – 5,000
 
-  * **Database:** Google BigQuery
-  * **Language:** Standard SQL
-  * **Visualization:** Looker Studio / Tableau
-  * **Data Schema:** Star schema consisting of `accounts`, `subscriptions`, `feature_usage`, `support_tickets`, and `churn_events`.
+\- feature\_usage – 25,000
 
------
+\- support\_tickets – 2,000
 
-## 📊 Foundational EDA & Diagnostics (Phases 1-4)
+\- churn\_events – 600
 
-Before developing predictive models, a rigorous exploratory data analysis (EDA) was conducted to diagnose baseline business health across Revenue, Product, Support, and Churn.
 
-### Phase 1: Customer Base & Revenue Health
 
-  * **The Insight:** The **Dev Tools** segment is the highest performing vertical, converting in just 34.5 days and generating **$2.4M in MRR**. Conversely, **Cybersecurity** clients face a sluggish 52.1-day sales cycle.
-  * **The Pain Point:** Extended sales cycles for Cybersecurity accounts are delaying revenue realization and increasing Customer Acquisition Cost (CAC).
-  * **Implementation Plan:** RevOps should shorten the Dev Tools trial period to 14 days to accelerate cash flow. Product Marketing must integrate security compliance documentation directly into the Day-1 onboarding flow for Cybersecurity accounts to remove procurement friction.
+---
 
-### Phase 2: Product Health & Feature Adoption
 
-  * **The Insight:** `feature_32` is the undisputed "Aha\! Moment," ranking as the top retention driver with 6,686 uses. Surprisingly, legacy features generate significantly more errors than new Beta features (which maintain a low 5.53% error rate).
-  * **The Pain Point:** Technical debt in legacy code is degrading the core experience, while users are hitting paywall friction points on `feature_12` and `feature_40` before seeing full value.
-  * **Implementation Plan:** Product Management should prioritize Day-1 onboarding tutorials that guide users toward `feature_32`. Engineering must pause non-critical feature rollouts to refactor and resolve legacy bugs in `feature_4` and `feature_9`.
 
-### Phase 3: Support Operations & Customer Experience
+\## Scenario
 
-  * **The Insight:** While escalated tickets are low volume, 91 unique accounts in the queue represent **$2.07M (18.34%) of total MRR**. Seat count does not correlate with ticket volume (0.02), proving the platform scales well for Enterprise.
-  * **The Pain Point:** High-value enterprise revenue is disproportionately at risk due to a critical bottleneck in Tier-2 support escalations.
-  * **Implementation Plan:** Customer Success must deploy an automated routing system to instantly flag Enterprise tickets containing high-risk keywords (e.g., "error," "outage") to senior agents, bypassing Tier-1 queues.
 
-### Phase 4: Churn & Retention Diagnostics
 
-  * **The Insight:** 80.7% of customers who churned due to "support" had a ticket ignored for over 48 hours. Enterprise churn is catastrophic, accounting for \*\*$9.8M in lost MRR** compared to only ~$898k in the Basic tier.
-  * **The Pain Point:** Poor SLA adherence is the direct root cause of massive revenue hemorrhage among enterprise clients who demonstrate a high initial intent to stay.
-  * **Implementation Plan:** Enforce a strict 24-hour SLA for all Enterprise accounts. Automatically trigger proactive CS interventions if an Enterprise ticket remains unresolved past the 12-hour mark.
+You're investigating RavenStack, a stealth-mode SaaS startup delivering AI-driven team tools. The product was secretly piloted with coding bootcamp graduates, and every sign-up, feature use, support ticket, and churn was captured. Now, you're tasked with discovering what drove conversions, support load, and churn patterns before their public launch.
 
------
 
-## 🚀 Predictive Behavioral Modeling (Phase 5)
 
-The project utilizes a predictive, behavioral analytics framework broken into three distinct lifecycle pillars:
+---
 
-  * **Pillar A: Activation & The Setup Funnel:** Measures Time-to-Value (TTV) by calculating the velocity at which new accounts trigger their first core `feature_usage` event within the crucial 14-day onboarding window.
-  * **Pillar B: Engagement & Feature Synergy:** Utilizes **Market Basket Analysis** (Self-Joins and rolling 7-day windows) to identify correlated feature usage and track if new features cannibalize legacy tools.
-  * **Pillar C: The Early Warning System (Silent Churn):** Analyzes the slope of decreasing activity (engagement degradation) 30 to 60 days before cancellation to predict "Silent Churn" before the user ever contacts support.
 
------
 
-## 💡 Consolidated Implementation Roadmap
+\## How This Dataset Was Generated
 
-To operationalize these insights, the following data pipelines should be integrated into production:
 
-1.  **Automate Early Warning:** Schedule `03_predictive_churn_warning.sql` to run daily at 6:00 AM, pushing "High Risk" `account_ids` directly to the Customer Success CRM.
-2.  **Optimize UI for Cross-Selling:** Implement an in-app prompt suggesting `feature_4` to users immediately after they trigger `feature_11` (based on Market Basket synergy).
-3.  **Targeted Marketing:** Pivot ad spend toward Dev Tools channels. Send automated 10% discount upgrade campaigns to Basic users as they approach usage limits on `feature_12` and `feature_40`.
-4.  **Refine Onboarding:** Investigate accounts with a TTV \> 30 days to identify and remove specific UX bottlenecks in the setup funnel.
 
------
+\- Scripted in Python using pandas, numpy, and uuid
 
-## 🔗 Dataset Architecture
+\- Temporal logic: Validated date ranges (e.g., signup ≤ subscription ≤ churn)
 
-The analysis is based on the **RavenStack Synthetic SaaS Dataset**, a multi-table relational schema designed to mimic real-world production environments.
+\- Statistical realism: Exponential and Poisson distributions for seats, usage, and durations
 
-### Table Relationships
+\- Primary \& foreign keys: All tables link properly; no orphans
 
-```text
-accounts (PK: account_id)
+\- Edge cases: Mid-cycle plan changes, null fields, reactivations, duplicate referrals, beta feature spikes
+
+\- Nulls included: Satisfaction scores, feature usage, churn feedback
+
+\- Fully synthetic: All names, domains, feedback, and data are generated
+
+
+
+---
+
+
+
+\## Table Relationships
+
+
+
+accounts (PK: account\_id)
+
 │
-├── subscriptions (FK → accounts.account_id)
-│   └── feature_usage (FK → subscriptions.subscription_id)
+
+├── subscriptions (FK → accounts.account\_id)
+
+│ └── feature\_usage (FK → subscriptions.subscription\_id)
+
 │
-├── support_tickets (FK → accounts.account_id)
-└── churn_events (FK → accounts.account_id)
-```
 
-### Data Volume
+├── support\_tickets (FK → accounts.account\_id)
 
-  * `accounts`: 500 records
-  * `subscriptions`: 5,000 records
-  * `feature_usage`: 25,000 records
-  * `support_tickets`: 2,000 records
-  * `churn_events`: 600 records
+└── churn\_events (FK → accounts.account\_id)
 
------
 
-## 📂 Repository Structure
 
-```text
-/SQL_Queries
-  ├── 01_time_to_value_analysis.sql     # CTEs and date math for activation velocity
-  ├── 02_feature_market_basket.sql      # Self-joins and rolling windows for product synergy
-  └── 03_predictive_churn_warning.sql   # Time-series window functions for engagement degradation
-/Data_Dictionary
-  └── DATA_DICTIONARY.md                # Detailed schema definitions and column types
-README.md                               # Project overview and executive summary
-```
+pgsql
 
------
+Copy
 
-## 📄 Licensing & Usage
-This dataset is fully synthetic and distributed under a permissive MIT-like license.
+Edit
+
+
+
+All account\_id and subscription\_id links are referentially complete.
+
+
+
+---
+
+
+
+\## Table Schemas
+
+
+
+\### accounts.csv
+
+| Column         | Type       | Description                                |
+
+|----------------|------------|--------------------------------------------|
+
+| account\_id     | ID         | Unique customer (primary key)              |
+
+| account\_name   | string     | Fictional company name                     |
+
+| industry       | categorical| SaaS vertical (e.g., DevTools, EdTech)     |
+
+| country        | string     | ISO-2 country code                         |
+
+| signup\_date    | date       | Account creation date                      |
+
+| referral\_source| categorical| organic, ads, event, partner, other        |
+
+| plan\_tier      | categorical| Initial plan (Basic, Pro, Enterprise)      |
+
+| seats          | integer    | Licensed user count                        |
+
+| is\_trial       | boolean    | Currently trialing                         |
+
+| churn\_flag     | boolean    | Churned at any point                       |
+
+
+
+\### subscriptions.csv
+
+| Column           | Type       | Description                            |
+
+|------------------|------------|----------------------------------------|
+
+| subscription\_id  | ID         | Unique subscription (primary key)      |
+
+| account\_id       | ID (FK)    | Links to accounts.account\_id           |
+
+| start\_date       | date       | Subscription start                     |
+
+| end\_date         | date       | Nullable for active plans              |
+
+| plan\_tier        | categorical| Plan at time of billing                |
+
+| seats            | integer    | Licensed seats                         |
+
+| mrr\_amount       | currency   | Monthly revenue                        |
+
+| arr\_amount       | currency   | Annual revenue                         |
+
+| is\_trial         | boolean    | Trial status                           |
+
+| upgrade\_flag     | boolean    | Plan upgraded mid-cycle                |
+
+| downgrade\_flag   | boolean    | Plan downgraded mid-cycle              |
+
+| churn\_flag       | boolean    | True if ended                          |
+
+| billing\_frequency| categorical| monthly or annual                      |
+
+| auto\_renew\_flag  | boolean    | 80% true                               |
+
+
+
+\### feature\_usage.csv
+
+| Column           | Type       | Description                            |
+
+|------------------|------------|----------------------------------------|
+
+| usage\_id         | ID         | Unique usage event                     |
+
+| subscription\_id  | ID (FK)    | Links to subscriptions.subscription\_id |
+
+| usage\_date       | date       | Date of usage                          |
+
+| feature\_name     | categorical| From pool of 40 SaaS features          |
+
+| usage\_count      | integer    | Event frequency                        |
+
+| usage\_duration\_secs | integer | Time spent                             |
+
+| error\_count      | integer    | Logged errors                          |
+
+| is\_beta\_feature  | boolean    | 10% flagged as beta                    |
+
+
+
+\### support\_tickets.csv
+
+| Column                  | Type       | Description                          |
+
+|-------------------------|------------|--------------------------------------|
+
+| ticket\_id               | ID         | Unique ticket                        |
+
+| account\_id              | ID (FK)    | Links to accounts.account\_id         |
+
+| submitted\_at            | datetime   | Time opened                          |
+
+| closed\_at               | datetime   | Time resolved                        |
+
+| resolution\_time\_hours   | float      | Duration                             |
+
+| priority                | categorical| low, medium, high, urgent            |
+
+| first\_response\_time\_minutes | integer| Minutes to first response            |
+
+| satisfaction\_score      | integer    | 1–5 (null = no response)             |
+
+| escalation\_flag         | boolean    | True if escalated                    |
+
+
+
+\### churn\_events.csv
+
+| Column              | Type       | Description                           |
+
+|---------------------|------------|---------------------------------------|
+
+| churn\_event\_id      | ID         | Unique churn instance                 |
+
+| account\_id          | ID (FK)    | Links to accounts.account\_id          |
+
+| churn\_date          | date       | When account left                     |
+
+| reason\_code         | categorical| pricing, support, features, etc.      |
+
+| refund\_amount\_usd   | currency   | $0 default, 25% have credit/refund    |
+
+| preceding\_upgrade\_flag| boolean | Had upgrade within 90 days             |
+
+| preceding\_downgrade\_flag| boolean| Had downgrade within 90 days          |
+
+| is\_reactivation     | boolean    | 10% were previously churned           |
+
+| feedback\_text       | string     | Optional customer comment             |
+
+
+
+---
+
+
+
+\## Suggested Projects
+
+
+
+\- Churn prediction using subscriptions + support data
+
+\- Feature adoption tracking during beta phases
+
+\- Support workload forecasting
+
+\- Revenue cohort analysis by referral channel
+
+\- Plan tier upgrade funnel by industry
+
+\- Latency analysis by seat count and plan tier
+
+
+
+---
+
+
+
+\## Licensing
+
+
+
+This dataset is fully synthetic and distributed under a permissive MIT-like license.  
+
+You may use or remix it for learning, research, or portfolio purposes, but \*\*you must credit the dataset author: River @ Rivalytics.\*\*
+
+
+
+
+
